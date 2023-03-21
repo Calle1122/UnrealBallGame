@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "UBallGameHUD.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "Components/TextBlock.h"
 
 // Sets default values
@@ -34,6 +35,27 @@ ACharacterBase::ACharacterBase()
 	SpringArm->TargetArmLength = 550.f;
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 4.0f;
+}
+
+void ACharacterBase::HandlePause()
+{
+	if(PauseHUD->isPaused)
+	{
+		PauseHUD->FadeOutPause();
+		GameHUD->EnableWidget();
+	}
+	else
+	{
+		GameHUD->DisableWidget();
+		PauseHUD->FadeInPause();
+	}
+
+	BallInput->WantsToPause=false;
+}
+
+void ACharacterBase::TriggerDashUI()
+{
+	GameHUD->FadeInDash();
 }
 
 void ACharacterBase::StartRespawn()
@@ -78,6 +100,13 @@ void ACharacterBase::BeginPlay()
 
 		GameHUD->StartGameUIAnimations();
 	}
+	if(BallGamePauseClass)
+	{
+		PauseHUD = CreateWidget<UPauseHUD>(GetWorld()->GetFirstPlayerController(), BallGamePauseClass);
+		PauseHUD->AddToPlayerScreen();
+
+		PauseHUD->ResumeButton->OnClicked.AddDynamic(PauseHUD, &UPauseHUD::FadeOutPause);
+	}
 }
 
 void ACharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -113,6 +142,11 @@ void ACharacterBase::Tick(float DeltaTime)
 			hasStartedTimer = true;
 		}
 	}
+
+	if(BallInput->WantsToPause)
+	{
+		HandlePause();
+	}
 	
 	if (BallInput->WantsToJump)
 	{
@@ -122,6 +156,12 @@ void ACharacterBase::Tick(float DeltaTime)
 
 	if(BallInput->WantsToDash)
 	{
+		if(BallMovement->CanDash)
+		{
+			GameHUD->FadeOutDash();
+			GetWorld()->GetTimerManager().SetTimer(FadeInDashTimer, this, &ACharacterBase::TriggerDashUI, 3.0f, false);
+		}
+		
 		BallMovement->Dash();
 		BallInput->WantsToDash = false;
 	}

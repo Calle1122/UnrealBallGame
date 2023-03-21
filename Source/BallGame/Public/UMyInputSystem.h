@@ -44,6 +44,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="Camera Inputs")
 	TObjectPtr<UInputAction> CameraYawAction;
 
+	UPROPERTY(EditAnywhere, Category="Pause Inputs")
+	TObjectPtr<UInputAction> PauseGameAction;
+
 	bool WantsToJump;
 	bool WantsToMove;
 	bool WantsToDash;
@@ -51,6 +54,8 @@ public:
 	bool WantsToMoveCameraP;
 	bool WantsToMoveCameraY;
 	bool WantsToZoom;
+
+	bool WantsToPause;
 	
 	FVector2D MoveVector;
 
@@ -66,6 +71,8 @@ public:
 	void ZoomOutCamera(const FInputActionValue& Value);
 	void MoveCameraPitch(const FInputActionValue& Value);
 	void MoveCameraYaw(const FInputActionValue& Value);
+
+	void BallGamePause(const FInputActionValue& Value);
 
 private:
 	APlayerController* PlayerController;

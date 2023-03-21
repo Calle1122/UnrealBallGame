@@ -18,6 +18,11 @@ public:
 	void SetTimer(int MSec, int Sec, int Min);
 	void StartGameUIAnimations();
 	void PlayDeathAnimation();
+	void FadeInDash();
+	void FadeOutDash();
+
+	void EnableWidget();
+	void DisableWidget();
 	
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UTextBlock* TimerText;
@@ -29,6 +34,8 @@ public:
 	class UTextBlock* CountDownText1;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UTextBlock* CountDownTextGO;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+    class UTextBlock* DashText;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UImage* DeathImage;
@@ -46,4 +53,16 @@ public:
 
 	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
 	UWidgetAnimation* DeathImageSlide;
+	
+	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+    UWidgetAnimation* DashFadeIn;
+    UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+    UWidgetAnimation* DashFadeOut;
+    UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+    UWidgetAnimation* DashIdle;
+
+	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+	UWidgetAnimation* WidgetFadeIn;
+	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+	UWidgetAnimation* WidgetFadeOut;
 };

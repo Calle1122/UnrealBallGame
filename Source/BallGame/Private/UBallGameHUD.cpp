@@ -60,3 +60,24 @@ void UBallGameHUD::PlayDeathAnimation()
 {
 	PlayAnimation(DeathImageSlide, 0);
 }
+
+void UBallGameHUD::FadeInDash()
+{
+	PlayAnimation(DashFadeIn, 0);
+	PlayAnimation(DashIdle, .40f, 0);
+}
+
+void UBallGameHUD::FadeOutDash()
+{
+	PlayAnimation(DashFadeOut, 0);
+}
+
+void UBallGameHUD::EnableWidget()
+{
+	PlayAnimation(WidgetFadeIn, 0);
+}
+
+void UBallGameHUD::DisableWidget()
+{
+	PlayAnimation(WidgetFadeOut, 0);
+}

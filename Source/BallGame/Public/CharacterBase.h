@@ -6,6 +6,7 @@
 #include "UBallGameHUD.h"
 #include "UMyInputSystem.h"
 #include "UMyMovement.h"
+#include "UPauseHUD.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -34,7 +35,17 @@ public:
 	UPROPERTY()
 	class UBallGameHUD* GameHUD;
 
+	UPROPERTY(EditAnywhere, Category="Widget UI")
+	TSubclassOf<UPauseHUD> BallGamePauseClass;
+	UPROPERTY()
+	class UPauseHUD* PauseHUD;
+
+	void HandlePause();
+
 	float TotalTime;
+
+	FTimerHandle FadeInDashTimer;
+	void TriggerDashUI();
 
 	void StartRespawn();
 	float PlayerSpawnRotation;

@@ -40,6 +40,8 @@ void UMyInputSystem::SetupInput(TObjectPtr<AController> Controller, UInputCompon
 
 	EInputComponent->BindAction(CameraPitchAction, ETriggerEvent::Triggered, this, &UMyInputSystem::MoveCameraPitch);
 	EInputComponent->BindAction(CameraYawAction, ETriggerEvent::Triggered, this, &UMyInputSystem::MoveCameraYaw);
+
+	EInputComponent->BindAction(PauseGameAction, ETriggerEvent::Triggered, this, &UMyInputSystem::BallGamePause);
 }
 
 void UMyInputSystem::BallMove(const FInputActionValue& Value)
@@ -78,4 +80,9 @@ void UMyInputSystem::MoveCameraYaw(const FInputActionValue& Value)
 {
 	WantsToMoveCameraY = true;
 	CameraVector.X = Value.Get<float>();
+}
+
+void UMyInputSystem::BallGamePause(const FInputActionValue& Value)
+{
+	WantsToPause = true;
 }
