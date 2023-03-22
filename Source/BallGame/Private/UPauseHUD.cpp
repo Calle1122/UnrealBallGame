@@ -15,12 +15,14 @@ void UPauseHUD::FadeInPause()
 	PlayAnimation(MenuFadeIn, .15f);
 	
 	GetWorld()->GetFirstPlayerController()->Pause();
+	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
 
 	isPaused = true;
 }
 
 void UPauseHUD::FadeOutPause()
 {
+	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(false);
 	GetWorld()->GetFirstPlayerController()->Pause();
 
 	isPaused = false;

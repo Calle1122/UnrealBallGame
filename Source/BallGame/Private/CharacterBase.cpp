@@ -53,6 +53,24 @@ void ACharacterBase::HandlePause()
 	BallInput->WantsToPause=false;
 }
 
+bool ACharacterBase::GroundCheck()
+{
+	FVector startLocation = GetActorLocation();
+	FVector endLocation = startLocation - FVector(0, 0, 100);
+
+	ECollisionChannel collisionChannel = ECC_WorldStatic;
+
+	FHitResult hitResult;
+	FCollisionQueryParams queryParams;
+	queryParams.AddIgnoredActor(this);
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, startLocation, endLocation, collisionChannel, queryParams)) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 void ACharacterBase::TriggerDashUI()
 {
 	GameHUD->FadeInDash();
@@ -105,7 +123,7 @@ void ACharacterBase::BeginPlay()
 		PauseHUD = CreateWidget<UPauseHUD>(GetWorld()->GetFirstPlayerController(), BallGamePauseClass);
 		PauseHUD->AddToPlayerScreen();
 
-		PauseHUD->ResumeButton->OnClicked.AddDynamic(PauseHUD, &UPauseHUD::FadeOutPause);
+		PauseHUD->ResumeButton->OnClicked.AddDynamic(this, &ACharacterBase::HandlePause);
 	}
 }
 
@@ -147,12 +165,28 @@ void ACharacterBase::Tick(float DeltaTime)
 	{
 		HandlePause();
 	}
-	
-	if (BallInput->WantsToJump)
+
+	canJump = GroundCheck();
+	if(canJump)
 	{
-		BallMovement->Jump(BallMesh);
-		BallInput->WantsToJump = false;
+		TimeInAir = 0;
 	}
+	else
+	{
+		TimeInAir+=DeltaTime;
+	}
+	
+	if (BallInput->WantsToJump && TimeSinceLastJump>.5f)
+	{
+		if(canJump || TimeInAir < CyoteTime)
+		{
+			BallMovement->Jump(BallMesh);
+			TimeSinceLastJump = 0;
+		}
+	}
+
+	TimeSinceLastJump += DeltaTime;
+	BallInput->WantsToJump = false;
 
 	if(BallInput->WantsToDash)
 	{

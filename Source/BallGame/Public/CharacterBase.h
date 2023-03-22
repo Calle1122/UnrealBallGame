@@ -40,9 +40,18 @@ public:
 	UPROPERTY()
 	class UPauseHUD* PauseHUD;
 
+	UFUNCTION()
 	void HandlePause();
 
 	float TotalTime;
+
+	bool GroundCheck();
+	bool canJump;
+	float TimeSinceLastJump;
+	float TimeInAir;
+
+	UPROPERTY(EditAnywhere, Category="Cyote Time")
+	float CyoteTime;
 
 	FTimerHandle FadeInDashTimer;
 	void TriggerDashUI();
