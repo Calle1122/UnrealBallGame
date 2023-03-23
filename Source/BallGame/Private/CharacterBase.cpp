@@ -53,6 +53,20 @@ void ACharacterBase::HandlePause()
 	BallInput->WantsToPause=false;
 }
 
+void ACharacterBase::FinishLevel()
+{
+	shouldCount = false;
+	FinishedLevel = true;
+	
+	GameHUD->DisableWidget();
+
+	CanRotateCamera = false;
+	
+	FinishLevelHUD->TimerText->SetText(GameHUD->TimerText->GetText());
+	FinishLevelHUD->SetVisibility(ESlateVisibility::Visible);
+	FinishLevelHUD->StartFinishAnimations();
+}
+
 bool ACharacterBase::GroundCheck()
 {
 	FVector startLocation = GetActorLocation();
@@ -69,6 +83,11 @@ bool ACharacterBase::GroundCheck()
 	else {
 		return false;
 	}
+}
+
+void ACharacterBase::EnableDashUI()
+{
+	GameHUD->DashText->SetVisibility(ESlateVisibility::Visible);
 }
 
 void ACharacterBase::TriggerDashUI()
@@ -108,6 +127,10 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	shouldCount = true;
+
+	PlayerSpawnRotation = BallMesh->GetComponentRotation().Yaw;
+	
 	DisableMovement();
 	GetWorld()->GetTimerManager().SetTimer(EnableMoveTimer, this, &ACharacterBase::EnableMovement, 3.75f, false);
 	
@@ -116,6 +139,10 @@ void ACharacterBase::BeginPlay()
 		GameHUD = CreateWidget<UBallGameHUD>(GetWorld()->GetFirstPlayerController(), BallGameHUDClass);
 		GameHUD->AddToPlayerScreen();
 
+		GameHUD->DashText->SetVisibility(ESlateVisibility::Hidden);
+		
+		GetWorld()->GetTimerManager().SetTimer(DashUIStartDelay, this, &ACharacterBase::EnableDashUI, 3.7f, false);
+		
 		GameHUD->StartGameUIAnimations();
 	}
 	if(BallGamePauseClass)
@@ -124,6 +151,13 @@ void ACharacterBase::BeginPlay()
 		PauseHUD->AddToPlayerScreen();
 
 		PauseHUD->ResumeButton->OnClicked.AddDynamic(this, &ACharacterBase::HandlePause);
+	}
+	if(BallGameFinishHUDClass)
+	{
+		FinishLevelHUD = CreateWidget<UFinishHUD>(GetWorld()->GetFirstPlayerController(), BallGameFinishHUDClass);
+		FinishLevelHUD->AddToPlayerScreen();
+
+		FinishLevelHUD->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -134,6 +168,16 @@ void ACharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		GameHUD->RemoveFromParent();
 		GameHUD = nullptr;
 	}
+	if(PauseHUD)
+	{
+		PauseHUD->RemoveFromParent();
+		PauseHUD = nullptr;
+	}
+	if(FinishLevelHUD)
+	{
+		FinishLevelHUD->RemoveFromParent();
+		FinishLevelHUD = nullptr;
+	}
 	
 	Super::EndPlay(EndPlayReason);
 }
@@ -143,11 +187,15 @@ void ACharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TotalTime+=DeltaTime;
+	if(shouldCount)
+	{
+		TotalTime+=DeltaTime;
+	}
+	
 	int Min = (int)(TotalTime/60);
 	int Sec = ((int)TotalTime % 60);
 	int MSec = ((int)(TotalTime*1000)%1000);
-
+	
 	if(hasStartedTimer)
 	{
 		GameHUD->SetTimer(MSec,Sec,Min);
@@ -157,6 +205,7 @@ void ACharacterBase::Tick(float DeltaTime)
 		if(TotalTime>=3.75f)
 		{
 			TotalTime = 0;
+			CanRotateCamera=true;
 			hasStartedTimer = true;
 		}
 	}
@@ -218,24 +267,37 @@ void ACharacterBase::Tick(float DeltaTime)
 	SpringArm->TargetArmLength = FMath::Lerp<float>(550.0f, 400.0f, ZoomFactor);
 
 	//Pitch And Yaw for Camera
-	if (BallInput->WantsToMoveCameraY)
+	if(CanRotateCamera)
 	{
-		FRotator NewYawRotation = GetActorRotation();
-		NewYawRotation.Yaw += BallInput->CameraVector.X;
-		SetActorRotation(NewYawRotation);
-		BallInput->WantsToMoveCameraY = false;
-	}
-	else
-	{
-		BallMesh->SetPhysicsAngularVelocityInDegrees(FVector(0, 0, 0), false);
-	}
+		if (BallInput->WantsToMoveCameraY)
+		{
+			FRotator NewYawRotation = GetActorRotation();
+			NewYawRotation.Yaw += BallInput->CameraVector.X;
+			SetActorRotation(NewYawRotation);
+			BallInput->WantsToMoveCameraY = false;
+		}
+		else
+		{
+			BallMesh->SetPhysicsAngularVelocityInDegrees(FVector(0, 0, 0), false);
+		}
 
-	if (BallInput->WantsToMoveCameraP)
+		if (BallInput->WantsToMoveCameraP)
+		{
+			FRotator NewPitchRotation = SpringArm->GetComponentRotation();
+			NewPitchRotation.Pitch = FMath::Clamp(NewPitchRotation.Pitch + BallInput->CameraVector.Y, -80.0f, -15.0f);
+			SpringArm->SetWorldRotation(NewPitchRotation);
+			BallInput->WantsToMoveCameraP = false;
+		}
+	}
+	if(FinishedLevel)
 	{
-		FRotator NewPitchRotation = SpringArm->GetComponentRotation();
-		NewPitchRotation.Pitch = FMath::Clamp(NewPitchRotation.Pitch + BallInput->CameraVector.Y, -80.0f, -15.0f);
-		SpringArm->SetWorldRotation(NewPitchRotation);
-		BallInput->WantsToMoveCameraP = false;
+		FRotator NewRot = GetActorRotation();
+		NewRot.Yaw+=.25f;
+		SetActorRotation(NewRot);
+
+		TimeSinceFinished+=DeltaTime;
+		
+		BallMovement->MoveSpeed = FMath::Lerp(BallMovement->MoveSpeed, 0, TimeSinceFinished);
 	}
 }
 

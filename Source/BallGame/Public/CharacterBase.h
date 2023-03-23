@@ -7,11 +7,13 @@
 #include "UMyInputSystem.h"
 #include "UMyMovement.h"
 #include "UPauseHUD.h"
+#include "UFinishHUD.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterBase.generated.h"
 
+class UFinishHUD;
 UCLASS()
 class BALLGAME_API ACharacterBase : public APawn
 {
@@ -40,15 +42,31 @@ public:
 	UPROPERTY()
 	class UPauseHUD* PauseHUD;
 
+	UPROPERTY(EditAnywhere, Category="Widget UI")
+	TSubclassOf<UFinishHUD> BallGameFinishHUDClass;
+	UPROPERTY()
+	class UFinishHUD* FinishLevelHUD;
+
 	UFUNCTION()
 	void HandlePause();
 
+	void FinishLevel();
+
+	bool CanRotateCamera;
+	
+	bool shouldCount;
 	float TotalTime;
+
+	bool FinishedLevel;
+	float TimeSinceFinished;
 
 	bool GroundCheck();
 	bool canJump;
 	float TimeSinceLastJump;
 	float TimeInAir;
+
+	FTimerHandle DashUIStartDelay;
+	void EnableDashUI();
 
 	UPROPERTY(EditAnywhere, Category="Cyote Time")
 	float CyoteTime;

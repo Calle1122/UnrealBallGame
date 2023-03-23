@@ -40,7 +40,7 @@ void AFinishZone::MyOverlapFunc(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	if(CastChecked<ACharacterBase>(OtherActor))
 	{
 		ACharacterBase* cBase = CastChecked<ACharacterBase>(OtherActor);
-		cBase->BallMovement->MoveSpeed *=5;
+		cBase->FinishLevel();
 		TriggerBox->DestroyComponent();
 	}
 }

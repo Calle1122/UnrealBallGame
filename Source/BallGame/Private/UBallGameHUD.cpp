@@ -54,6 +54,7 @@ void UBallGameHUD::StartGameUIAnimations()
 	UBallGameHUD::PlayAnimation(StartCountDown1, 0);
 	UBallGameHUD::PlayAnimation(StartCountDownGO, 0);
 	UBallGameHUD::PlayAnimation(RevealTimer, 0);
+	PlayAnimation(DashFadeIn, 3.75f);
 }
 
 void UBallGameHUD::PlayDeathAnimation()
