@@ -28,6 +28,13 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UTextBlock* BestTimerText;
 
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UButton* RestartLevelButton;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UButton* NextLevelButton;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UButton* MainMenuButton;
+
 	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
 	UWidgetAnimation* BackImageFadeIn;
 	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
@@ -40,4 +47,7 @@ public:
 	UWidgetAnimation* BestTimeTextFadeIn;
 	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
 	UWidgetAnimation* BestTimerTextFadeIn;
+
+	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+	UWidgetAnimation* RestartButtonFadeIn;
 };

@@ -8,6 +8,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -41,13 +42,19 @@ void ACharacterBase::HandlePause()
 {
 	if(PauseHUD->isPaused)
 	{
-		PauseHUD->FadeOutPause();
-		GameHUD->EnableWidget();
+		if(!FinishedLevel)
+		{
+			PauseHUD->FadeOutPause();
+			GameHUD->EnableWidget();
+		}
 	}
 	else
 	{
-		GameHUD->DisableWidget();
-		PauseHUD->FadeInPause();
+		if(!FinishedLevel)
+		{
+			GameHUD->DisableWidget();
+			PauseHUD->FadeInPause();
+		}
 	}
 
 	BallInput->WantsToPause=false;
@@ -65,6 +72,14 @@ void ACharacterBase::FinishLevel()
 	FinishLevelHUD->TimerText->SetText(GameHUD->TimerText->GetText());
 	FinishLevelHUD->SetVisibility(ESlateVisibility::Visible);
 	FinishLevelHUD->StartFinishAnimations();
+
+	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
+}
+
+void ACharacterBase::RestartLevel()
+{
+	FName LevelName = GetWorld()->GetCurrentLevel()->GetFName();
+	UGameplayStatics::OpenLevel(this, LevelName);
 }
 
 bool ACharacterBase::GroundCheck()
@@ -145,19 +160,23 @@ void ACharacterBase::BeginPlay()
 		
 		GameHUD->StartGameUIAnimations();
 	}
-	if(BallGamePauseClass)
-	{
-		PauseHUD = CreateWidget<UPauseHUD>(GetWorld()->GetFirstPlayerController(), BallGamePauseClass);
-		PauseHUD->AddToPlayerScreen();
-
-		PauseHUD->ResumeButton->OnClicked.AddDynamic(this, &ACharacterBase::HandlePause);
-	}
+	
 	if(BallGameFinishHUDClass)
 	{
 		FinishLevelHUD = CreateWidget<UFinishHUD>(GetWorld()->GetFirstPlayerController(), BallGameFinishHUDClass);
 		FinishLevelHUD->AddToPlayerScreen();
 
 		FinishLevelHUD->SetVisibility(ESlateVisibility::Hidden);
+		
+		FinishLevelHUD->RestartLevelButton->OnClicked.AddDynamic(this, &ACharacterBase::RestartLevel);
+	}
+	if(BallGamePauseClass)
+	{
+		PauseHUD = CreateWidget<UPauseHUD>(GetWorld()->GetFirstPlayerController(), BallGamePauseClass);
+		PauseHUD->AddToPlayerScreen();
+
+		PauseHUD->ResumeButton->OnClicked.AddDynamic(this, &ACharacterBase::HandlePause);
+		PauseHUD->RestartButton->OnClicked.AddDynamic(this, &ACharacterBase::RestartLevel);
 	}
 }
 

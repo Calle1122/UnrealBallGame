@@ -52,6 +52,9 @@ public:
 
 	void FinishLevel();
 
+	UFUNCTION()
+	void RestartLevel();
+
 	bool CanRotateCamera;
 	
 	bool shouldCount;
