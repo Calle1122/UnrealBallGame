@@ -50,4 +50,8 @@ public:
 
 	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
 	UWidgetAnimation* RestartButtonFadeIn;
+	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+	UWidgetAnimation* NextLevelButtonFadeIn;
+	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
+	UWidgetAnimation* MainMenuButtonFadeIn;
 };

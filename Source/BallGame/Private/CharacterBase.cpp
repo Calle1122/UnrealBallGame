@@ -66,6 +66,7 @@ void ACharacterBase::FinishLevel()
 	FinishedLevel = true;
 	
 	GameHUD->DisableWidget();
+	PauseHUD->RemoveFromParent();
 
 	CanRotateCamera = false;
 	

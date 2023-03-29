@@ -14,4 +14,6 @@ void UFinishHUD::StartFinishAnimations()
 	PlayAnimation(BestTimerTextFadeIn, 0);
 
 	PlayAnimation(RestartButtonFadeIn, 0);
+	PlayAnimation(NextLevelButtonFadeIn, 0);
+	PlayAnimation(MainMenuButtonFadeIn, 0);
 }

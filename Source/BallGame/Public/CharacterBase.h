@@ -13,7 +13,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterBase.generated.h"
 
-class UFinishHUD;
 UCLASS()
 class BALLGAME_API ACharacterBase : public APawn
 {
@@ -35,17 +34,17 @@ public:
 	UPROPERTY(EditAnywhere, Category="Widget UI")
 	TSubclassOf<UBallGameHUD> BallGameHUDClass;
 	UPROPERTY()
-	class UBallGameHUD* GameHUD;
+	UBallGameHUD* GameHUD;
 
 	UPROPERTY(EditAnywhere, Category="Widget UI")
 	TSubclassOf<UPauseHUD> BallGamePauseClass;
 	UPROPERTY()
-	class UPauseHUD* PauseHUD;
+	UPauseHUD* PauseHUD;
 
 	UPROPERTY(EditAnywhere, Category="Widget UI")
 	TSubclassOf<UFinishHUD> BallGameFinishHUDClass;
 	UPROPERTY()
-	class UFinishHUD* FinishLevelHUD;
+	UFinishHUD* FinishLevelHUD;
 
 	UFUNCTION()
 	void HandlePause();
